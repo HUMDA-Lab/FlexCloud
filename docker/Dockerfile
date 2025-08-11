@@ -51,10 +51,9 @@ RUN geographiclib-get-geoids good
 
 WORKDIR /dev_ws
 
-COPY . /dev_ws/src/flexcloud/
+#COPY . /dev_ws/src/flexcloud/
 
-# Install flexcloud
-RUN /bin/bash -c 'cmake -S /dev_ws/src/flexcloud -B /dev_ws/build && \
-    cmake --build /dev_ws/build -j 10'
+# Note: FlexCloud build moved to build_flexcloud.sh script
+# Run the build script manually after starting the container
 
 CMD [ "bash" ]

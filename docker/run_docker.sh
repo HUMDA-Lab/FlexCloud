@@ -15,5 +15,7 @@ docker run -it --rm \
     --privileged \
     -v /dev/shm:/dev/shm \
     -v $1/:/datasets/ \
+    -v $HOME/FlexCloud:/dev_ws/src/flexcloud \
+    -v $HOME/flexcloud_build:/dev_ws/build \
     ghcr.io/tumftm/flexcloud:latest
 xhost -

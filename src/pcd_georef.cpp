@@ -39,7 +39,7 @@ pcd_georef::pcd_georef(
   this->config_.traj_path = ref_path;
   this->config_.poses_path = slam_path;
   this->config_.pcd_path = pcd_path;
-  this->config_.pcd_out_path = pcd_out_path;
+  this->config_.pcd_out_path = "/dev_ws/output/"; //pcd_out_path;
   this->config_.dim = config["dim"].as<int>();
   this->config_.transform_traj = config["transform_traj"].as<bool>();
   this->config_.rs_num_controlPoints = config["rs_num_controlPoints"].as<int>();
