@@ -24,6 +24,7 @@ namespace flexcloud
 {
 struct FlexCloudConfig
 {
+  std::string slam_odom_format{};
   std::string traj_path{};
   std::string poses_path{};
   std::string pcd_path{};
@@ -37,6 +38,7 @@ struct FlexCloudConfig
   std::vector<double> square_size{0.1, 0.1, 10.0};
   // PCD Georeferencing
   bool transform_pcd{true};
+  bool pcd_read_from_folder{true};
   std::vector<int64_t> exclude_ind{};
   std::vector<int64_t> shift_ind{};
   std::vector<double> shift_ind_dist{};

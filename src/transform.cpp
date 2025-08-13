@@ -45,13 +45,16 @@ bool transform::get_umeyama(
   (void)config;
   // Convert vector to Eigen format
   std::vector<Eigen::Vector3d> sr, tar;
-  sr.clear();
-  tar.clear();
-  for (const auto & pt : src) {
-    sr.push_back(pt.pos_);
-  }
-  for (const auto & pt : target) {
-    tar.push_back(pt.pos_);
+  const size_t N = std::min(src.size(), target.size());
+  sr.reserve(N);
+  tar.reserve(N);
+
+  // Filter points based on standard deviation threshold
+  for (size_t i = 0; i < N; ++i) {
+    if (sqrt(pow(src[i].stddev_(0), 2) + pow(src[i].stddev_(1), 2)) <= config.stddev_threshold) {
+      sr.push_back(src[i].pos_);
+      tar.push_back(target[i].pos_);
+    }
   }
 
   // Insert into Umeyama class and calculate transformation matrix

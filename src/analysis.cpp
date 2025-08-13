@@ -59,6 +59,12 @@ bool analysis::traj_matching(
   calc_diff(config, src, target_al, diff_al);
   calc_diff(config, src, target_rs, diff_rs);
 
+  std::vector<double> diff_al_filtered;
+  std::vector<double> diff_rs_filtered;
+
+  calc_diff(config, src, target_al, diff_al_filtered, true);
+  calc_diff(config, src, target_rs, diff_rs_filtered, true);
+
   // Extract path from output path
   std::string path = config.pcd_out_path;
   std::string::size_type pos = path.find_last_of("/");
@@ -79,6 +85,8 @@ bool analysis::traj_matching(
   write_cp(cps, dir, "controlPoints.txt");
   write_double_vec(diff_al, dir, "diff_al.txt");
   write_double_vec(diff_rs, dir, "diff_rs.txt");
+  write_double_vec(diff_al_filtered, dir, "diff_al_filtered.txt");
+  write_double_vec(diff_rs_filtered, dir, "diff_rs_filtered.txt");
   return true;
 }
 /**
@@ -92,14 +100,23 @@ bool analysis::traj_matching(
  *                                  target trajectory
  * @param[in] diff                - std::vector<double>:
  *                                  difference between trajectories (euclidean distance)
+ * @param[in] filter              - bool:
+ *                                  filter out point with too high standard deviation
  */
 void analysis::calc_diff(
   FlexCloudConfig & config, const std::vector<ProjPoint> & src,
-  const std::vector<ProjPoint> & target, std::vector<double> & diff)
+  const std::vector<ProjPoint> & target, std::vector<double> & diff, bool filter)
 {
   diff.clear();
   int i = 0;
   for (const auto & pt : target) {
+    if (filter) {
+      double dev_xy = sqrt(pow(src[i].stddev_(0), 2) + pow(src[i].stddev_(1), 2));
+      if (dev_xy > config.stddev_threshold) {
+        ++i;
+        continue;
+      }
+    }
     if (config.dim == 2) {
       // Only 2D distance
       double dist =

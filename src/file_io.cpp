@@ -281,15 +281,26 @@ bool file_io::read_poses_SLAM_from_file(
   // Read poses
   double x, y, z;
   float r1, r2, r3, r4, r5, r6, r7, r8, r9;
+  double ts, quat_x, quat_y, quat_z, quat_w;
 
   std::ifstream infile(poses_path);
   std::string line;
 
   while (std::getline(infile, line)) {
     std::istringstream iss(line);
-
-    if (!(iss >> r1 >> r2 >> r3 >> x >> r4 >> r5 >> r6 >> y >> r7 >> r8 >> r9 >> z)) {
-      std::cout << "Poses in wrong format!" << std::endl;
+    
+    if(config.slam_odom_format == "kitti") {
+      if (!(iss >> r1 >> r2 >> r3 >> x >> r4 >> r5 >> r6 >> y >> r7 >> r8 >> r9 >> z)) {
+        std::cout << "Poses not in KITTI format!" << std::endl;
+        return false;
+      }
+    } else if (config.slam_odom_format == "rapson") {
+      if (!(iss >> ts >> x >> y >> z >> quat_x >> quat_y >> quat_z >> quat_w)) {
+        std::cout << "Poses not in RAPSON format!" << std::endl;
+        return false;
+      }
+    } else {
+      std::cerr << "Unknown slam odometry format: " << config.slam_odom_format << std::endl;
       return false;
     }
     ProjPoint pt(x, y, z, 0.0, 0.0, 0.0);
@@ -360,11 +371,52 @@ bool file_io::read_pcd_from_file(
 
   if (pcl::io::loadPCDFile<pcl::PointXYZI>(pcd_path, *cloud) == -1) {
     PCL_ERROR("Couldn't read file Point cloud!\n");
-    return -1;
+    return false;
   }
   pcm = cloud;
   return true;
 }
+
+/**
+ * @brief reads all the pcd segments from a folder and stores them in a point cloud
+ *
+ * @param[in] config              - FlexCloudConfig:
+ *                                  config struct
+ * @param[in] folder_path         - std::string:
+ *                                  absolute path to folder
+ * @param[in] pcm                 - pcl::PointCloud<pcl::PointXYZ>::Ptr:
+ *                                  pointer on pointcloud map
+ */
+bool file_io::read_pcd_from_folder(
+  FlexCloudConfig & config, const std::string & folder_path,
+  pcl::PointCloud<pcl::PointXYZI>::Ptr & pcm)
+  {
+    if (!pcm) {
+      pcm.reset(new pcl::PointCloud<pcl::PointXYZI>);
+    } else {
+      pcm->clear();
+    }
+
+    std::vector<std::string> pcd_files = file_io::load_clouds(folder_path);
+    if (pcd_files.empty()) {
+      std::cerr << "No .pcd files found in folder: " << folder_path << std::endl;
+      return false;
+    }
+
+    size_t loaded = 0;
+    for (const auto & pcd_file : pcd_files) {
+      pcl::PointCloud<pcl::PointXYZI>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZI>);
+      if (file_io::read_pcd_from_file(config, pcd_file, cloud)) {
+        *pcm += *cloud;
+        ++loaded;
+      } else {
+        std::cerr << "Skipping unreadable PCD: " << pcd_file << std::endl;
+      }
+    }
+    std::cout << "Merged " << loaded << " PCD segments (" << pcm->size() << " points)." << std::endl;
+    return loaded > 0;
+  }
+
 /**
  * @brief save kitti odometry to file
  *

@@ -80,10 +80,12 @@ private:
    *                                  target trajectory
    * @param[in] diff                - std::vector<double>:
    *                                  difference between trajectories (euclidean distance)
+   * @param[in] filter               - bool:
+   *                                  filter out point with too high standard deviation
    */
   void calc_diff(
     FlexCloudConfig & config, const std::vector<ProjPoint> & src,
-    const std::vector<ProjPoint> & target, std::vector<double> & diff);
+    const std::vector<ProjPoint> & target, std::vector<double> & diff, bool filter=false);
   /**
    * @brief Save FlexCloudConfig to a text file
    * @param config The configuration to save

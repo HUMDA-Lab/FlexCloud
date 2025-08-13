@@ -14,7 +14,7 @@ docker run -it --rm \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
     --privileged \
     -v /dev/shm:/dev/shm \
-    -v $1/:/datasets/ \
+    -v $1/:/dev_ws/datasets/ \
     -v $HOME/FlexCloud:/dev_ws/src/flexcloud \
     -v $HOME/flexcloud_build:/dev_ws/build \
     ghcr.io/tumftm/flexcloud:latest

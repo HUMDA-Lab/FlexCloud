@@ -35,6 +35,8 @@ class TrajAnalysis:
         self.controlPoints = load_file(dir_path, "controlPoints.txt", " ")
         self.diff_al = load_file(dir_path, "diff_al.txt", "")
         self.diff_rs = load_file(dir_path, "diff_rs.txt", "")
+        self.diff_al_filtered = load_file(dir_path, "diff_al_filtered.txt", "")
+        self.diff_rs_filtered = load_file(dir_path, "diff_rs_filtered.txt", "")
         # Set dimension of transform
         self.dim = dim
 
@@ -414,41 +416,50 @@ class TrajAnalysis:
         set_axes_equal(ax)
 
     # Statistical values on deviations
-    def print_statistics(self):
-        rmse_al = np.sqrt(np.mean(self.diff_al**2))
-        rmse_rs = np.sqrt(np.mean(self.diff_rs**2))
-        print("\033[1;36mMatching statistics:\033[0m")
+    def print_statistics(self, use_filtered_data = False):
+
+        if(not use_filtered_data):
+            al_data = self.diff_al
+            rs_data = self.diff_rs
+            print("\033[1;36mMatching statistics:\033[0m")
+        else:
+            al_data = self.diff_al_filtered
+            rs_data = self.diff_rs_filtered
+            print("\033[1;36mMatching statistics with filtered data:\033[0m")
+
+        rmse_al = np.sqrt(np.mean(al_data**2))
+        rmse_rs = np.sqrt(np.mean(rs_data**2))
 
         print("\033[32mRMSE aligned target trajectory: " + str(rmse_al) + "\033[0m")
         print("\033[32mRMSE rubber-sheeted target trajectory: " + str(rmse_rs))
         print(
             "\033[32mMean aligned target trajectory: "
-            + str(np.mean(self.diff_al))
+            + str(np.mean(al_data))
             + "\033[0m"
         )
         print(
             "\033[32mMean rubber-sheeted target trajectory: "
-            + str(np.mean(self.diff_rs))
+            + str(np.mean(rs_data))
             + "\033[0m"
         )
         print(
             "\033[32mMedian aligned target trajectory: "
-            + str(np.median(self.diff_al))
+            + str(np.median(al_data))
             + "\033[0m"
         )
         print(
             "\033[32mMedian rubber-sheeted target trajectory: "
-            + str(np.median(self.diff_rs))
+            + str(np.median(rs_data))
             + "\033[0m"
         )
         print(
             "\033[32mStandard deviation aligned target trajectory: "
-            + str(np.std(self.diff_al))
+            + str(np.std(al_data))
             + "\033[0m"
         )
         print(
             "\033[32mStandard deviation rubber-sheeted target trajectory: "
-            + str(np.std(self.diff_rs))
+            + str(np.std(rs_data))
             + "\033[0m"
         )
 
@@ -473,5 +484,6 @@ if __name__ == "__main__":
     # optional: set draw_triag to True to show triangulation in rubber-sheet geometry
     traj.plot_geom_rs(draw_triag=True)
     traj.print_statistics()
+    traj.print_statistics(use_filtered_data=True)
 
     plt.show()

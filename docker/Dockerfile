@@ -37,6 +37,8 @@ RUN apt-get update && apt-get install -y -q --no-install-recommends \
 # Rerun viewer
 RUN pip3 install rerun_sdk
 
+RUN pip3 install matplotlib
+
 # GeographicLib
 RUN bash -c "wget https://github.com/geographiclib/geographiclib/archive/refs/tags/v2.3.tar.gz && \
     tar xfpz v2.3.tar.gz && \

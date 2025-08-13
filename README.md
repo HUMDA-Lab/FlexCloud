@@ -236,3 +236,11 @@ If you use this repository for any academic work, please consider citing our pap
       url={https://arxiv.org/abs/2502.00395}, 
 }
 ```
+
+# Use with Rapson data:
+```
+./build/pcd_georef src/flexcloud/config/pcd_georef.yaml /dev_ws/datasets/gps_flex_traj.txt /dev_ws/datasets/gps_rate_slam_traj.txt /dev_ws/datasets/map/ /dev_ws/output/pcd_georef.pcd
+```
+```
+python3 ./src/flexcloud/analysis/plot_traj_matching.py 2 ./traj_matching/
+```

@@ -22,6 +22,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <boost/filesystem.hpp>
 
 #include "yaml-cpp/yaml.h"
 namespace flexcloud
@@ -39,8 +40,9 @@ pcd_georef::pcd_georef(
   this->config_.traj_path = ref_path;
   this->config_.poses_path = slam_path;
   this->config_.pcd_path = pcd_path;
-  this->config_.pcd_out_path = "/dev_ws/output/"; //pcd_out_path;
+  this->config_.pcd_out_path = pcd_out_path;
   this->config_.dim = config["dim"].as<int>();
+  this->config_.slam_odom_format = config["slam_odom_format"].as<std::string>();
   this->config_.transform_traj = config["transform_traj"].as<bool>();
   this->config_.rs_num_controlPoints = config["rs_num_controlPoints"].as<int>();
   this->config_.stddev_threshold = config["stddev_threshold"].as<double>();
@@ -55,6 +57,7 @@ pcd_georef::pcd_georef(
   this->config_.num_cores = config["num_cores"].as<int>();
   this->config_.customZeroPoint = config["customZeroPoint"].as<bool>();
   this->config_.zeroPoint = config["zeroPoint"].as<std::vector<double>>();
+  this->config_.pcd_read_from_folder = config["pcd_read_from_folder"].as<bool>();
 
   // Initialize dimension of transformation
   if (this->config_.dim == 2) {
@@ -129,6 +132,23 @@ bool pcd_georef::paths_valid()
     }
   }
 
+  // // Check output directory (must already exist and be a directory)
+  // if (this->config_.transform_pcd) {
+  //   if (this->config_.pcd_out_path.empty()) {
+  //     std::cout << "Output PCD directory (pcd_out_path) not set" << std::endl;
+  //     allValid = false;
+  //   } else {
+  //     boost::filesystem::path out_dir(this->config_.pcd_out_path);
+  //     if (!boost::filesystem::exists(out_dir)) {
+  //       std::cout << "Output PCD directory (pcd_out_path) does not exist: " << out_dir.string() << std::endl;
+  //       allValid = false;
+  //     } else if (!boost::filesystem::is_directory(out_dir)) {
+  //       std::cout << "Output PCD path is not a directory: " << out_dir.string() << std::endl;
+  //       allValid = false;
+  //     }
+  //   }
+  // }
+
   return allValid;
 }
 /**
@@ -157,7 +177,11 @@ void pcd_georef::load_data()
 
   // PCD map
   if (this->config_.transform_pcd) {
-    if (file_io_->read_pcd_from_file(this->config_, this->config_.pcd_path, this->pcd_map)) {
+    bool succesful_pcd_read = config_.pcd_read_from_folder ? 
+      file_io_->read_pcd_from_folder(this->config_, this->config_.pcd_path, this->pcd_map) :
+      file_io_->read_pcd_from_file(this->config_, this->config_.pcd_path, this->pcd_map);
+
+    if (succesful_pcd_read) {
       std::cout << "\033[1;36mPoint Cloud with " << pcd_map->width * pcd_map->height
                 << " points: Loaded!\033[0m" << std::endl;
     } else {

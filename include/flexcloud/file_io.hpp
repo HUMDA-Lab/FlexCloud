@@ -115,6 +115,21 @@ public:
   bool read_pcd_from_file(
     FlexCloudConfig & config, const std::string & pcd_path,
     pcl::PointCloud<pcl::PointXYZI>::Ptr & pcm);
+
+  /**
+   * @brief read pcd map from folder
+   *
+   * @param[in] config              - FlexCloudConfig:
+   *                                  config struct
+   * @param[in] folder_path         - std::string:
+   *                                  absolute path to folder
+   * @param[in] pcm                 - pcl::PointCloud<pcl::PointXYZ>::Ptr:
+   *                                  pointer on pointcloud map
+   */
+  bool read_pcd_from_folder(
+    FlexCloudConfig & config, const std::string & folder_path,
+    pcl::PointCloud<pcl::PointXYZI>::Ptr & pcm);
+
   /**
    * @brief save kitti odometry to file
    *
